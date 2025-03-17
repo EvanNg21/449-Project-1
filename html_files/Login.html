@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Sign_In</title>
+    <meta name="viewport" content="width=device-width, inital-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css_static_files/Login_style.css">
+</head>
+
+<body>
+    <header class="top_bar">
+        <span class="name">Inventory Management System</span>
+    </header>
+
+    <main>
+        <h1><a class="h1">Login</a></h1>
+        <input id="email" type="text" placeholder="Email" class="email">
+        <input id="password" type="password" placeholder="Password">
+        <img src="/css_static_files/eye.jpg" class ="eye" id="showEye">
+        <img src="/css_static_files/closeEye.jpg" class ="closeEye" id="hideEye">
+        <button onclick="location.href='Logged_In.html'">LOGIN</button>
+        <span id="sign_up">Don't have an account? <a href="Register.html" class="signUpp">Sign Up</a></span>
+    </main>
+
+
+    <footer class="footer">
+        <div class="bottomLeft">
+            <h6> CPSC 449 - SPRING 2025 - Project 1</h6>
+            <span>MATTHEW AMORA</span> 
+            <span>ISLA KIM</span>
+            <span>EVAN NG</span>
+            <span>KARENE ROSALES</span> 
+            <span>ELIZABETH STEUBS</span> 
+        </div>
+    </footer>
+
+
+
+    <!---  ==========      JAVASCIPT CODE      ========= -->
+    <script>
+        const showEye = document.getElementById('showEye');
+        const hideEye = document.getElementById('hideEye');
+        const password = document.getElementById('password');
+    
+        showEye.addEventListener('click', function () 
+        {
+            password.setAttribute('type', 'text');
+            showEye.style.display = 'none';
+            hideEye.style.display = 'block';
+        }  );
+    
+        hideEye.addEventListener('click', function () 
+        {
+            password.setAttribute('type', 'password');
+            showEye.style.display = 'block';
+            hideEye.style.display = 'none';
+        }  );
+    </script>    
+
+
+</body>
+
+
+
+</html>

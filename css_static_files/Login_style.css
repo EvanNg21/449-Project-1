@@ -1,0 +1,177 @@
+/* switch this to its own file when you are done */
+* {
+    box-sizing: border-box; 
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    min-width: 30%;
+    min-height: 30%;
+    font-family: lexend, sans-serif;
+}
+
+/*      =================     TOP BAR ONLY    ==============   */
+.top_bar {
+    position: fixed;
+    top: 0;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    width: 100%;
+    height: 65px;
+    z-index: 10;
+    padding: 10px 0;
+    border-bottom: 1px solid rgb(158, 158, 158);
+    box-shadow: 0 6px 6px -3px rgba(0, 0, 0, 0.2); 
+    background-color: white;
+}
+
+a:link, a:visited {
+    text-decoration: none;
+    color: inherit;
+}
+
+.name {
+    margin: 0 auto;
+    font-size: 36px;             
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;         
+}
+ /*      =================     TOP BAR ONLY    ==============   */
+
+
+/*       =================    MAIN BODY   =================     */
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    top: 12%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 570px;
+    height: 600px;
+    padding: 20px;
+    text-align: center;
+    color: rgb(24, 78, 131);
+}
+        main h1 {
+            font-size: 42px;
+            color: rgb(0, 58, 93);
+        }
+        main h2 {
+            margin-top: -15px;
+            font-size: 40px;
+            color: rgb(0, 58, 93);
+        }
+        main input {
+            width: 75%;
+            margin-bottom: 24px;
+            border: 2px solid black;
+            border-radius: 12px;
+            height: 50px;
+            font-size: 18px;
+            font-family: lexend, sans-serif;
+        }
+        main input::placeholder {
+            font-size: 16px;
+            padding-left: 15px;
+            font-family: lexend, sans-serif;
+        }
+        main input:focus {
+            box-shadow: 0 0 10px rgba(46, 21, 21, 0.5);
+        }
+        .eye {
+            position: absolute;
+            right: 20%;
+            top: 36%;
+            height: 25px;
+            width: 30px;
+        }
+        .eye:hover, .closeEye:hover {
+            cursor: pointer;
+        }
+        .closeEye {
+            position: absolute;
+            right: 20.3%;
+            top: 36.2%;
+            height: 21px;
+            width: 26px;
+            display: none;
+        }
+        button {
+            background-color: rgb(213, 27, 27);
+            border: 1px solid rgb(213, 27, 27);
+            color: white;
+            width: 75%;
+            height: 50px;
+            margin: 10px auto;
+            display: block;
+            border-radius: 6px;
+            font-size: 24px;
+            font-weight: 600;
+            font-family: lexend, sans-serif;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: rgb(190, 23, 23);
+        }
+        button:active {
+            background-color: rgb(206, 39, 39);
+            border: 6px solid #d32c2c;
+            cursor: pointer;
+            box-shadow: 0 0 0 0px rgb(206, 39, 39);
+            transform: scale(.99);
+        }
+
+        #sign_up {
+            font-size: 15px;
+            color: black;
+        }
+
+        .signUpp {
+            text-decoration: underline !important;
+            color: rgb(213, 27, 27) !important;
+        }
+
+
+/*       =================    MAIN BODY   ================     */
+
+
+ /*      =================     FOOTER ONLY    ==============   */
+ .footer {
+    position: relative;
+    top: 95%;
+    width: 100%;
+    display: inline-flex;
+    align-items: flex-start;
+ }
+
+.bottomLeft {
+    color: rgb(0, 58, 93);
+    width: 100%;
+    border-top: 40px solid rgb(213, 27, 27);
+    padding-left: 15px;
+    font-weight: 600;
+}
+        .bottomLeft h5 {
+            font-size: 20px;
+            font-weight: 600;   
+        }
+        .bottomLeft h6 {
+            margin-top: 30px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        .bottomLeft span {
+            display: inline-block;
+            margin-right: 12px;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+
+ /*      =================     FOOTER ONLY    ==============   */
