@@ -83,7 +83,7 @@ main {
         .eye {
             position: absolute;
             right: 110px;
-            top: 65.5%;
+            top: 61.3%;
             height: 25px;
             width: 30px;
         }
@@ -93,7 +93,7 @@ main {
         .closeEye {
             position: absolute;
             right: 111px;
-            top: 65.8%;
+            top: 61.5%;
             height: 21px;
             width: 26px;
             display: none;
