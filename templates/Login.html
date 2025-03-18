@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css_static_files/Login_style.css">
+    <link rel="stylesheet" href="/static/Login_style.css">
 </head>
 
 <body>
@@ -17,12 +17,14 @@
 
     <main>
         <h1><a class="h1">Login</a></h1>
-        <input id="email" type="text" placeholder="Email" class="email">
-        <input id="password" type="password" placeholder="Password">
-        <img src="/css_static_files/eye.jpg" class ="eye" id="showEye">
-        <img src="/css_static_files/closeEye.jpg" class ="closeEye" id="hideEye">
-        <button onclick="location.href='Logged_In.html'">LOGIN</button>
-        <span id="sign_up">Don't have an account? <a href="Register.html" class="signUpp">Sign Up</a></span>
+        <form id="login-form" method="POST" action="/login">
+            <input id="username" type="text" name="username" placeholder="Username" class="username" required>
+            <input id="password" type="password" name="password" placeholder="Password" required>
+            <img src="/static/eye.jpg" class ="eye" id="showEye">
+            <img src="/static/closeEye.jpg" class ="closeEye" id="hideEye">
+            <button type="submit">LOGIN</button>
+        </form>
+        <span id="sign_up">Don't have an account? <a href="{{ url_for('register') }}" class="signUpp">Sign Up</a></span>
     </main>
 
 

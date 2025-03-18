@@ -8,8 +8,8 @@ app = Flask(__name__)
 # Configure Database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db' # using sql lite for now, can be chnaged
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'secret_key'  # Required for session security
-                                         # will change, placeholder for now
+app.config['SECRET_KEY'] = 'supersecretkey'  # Required for session security
+                                             # will change, placeholder for now
 
 db = SQLAlchemy(app)
 
@@ -36,7 +36,7 @@ def register():
         return render_template('Register.html')  # Load HTML form
 
     try:
-        data = request.form
+        data = request.form  # using form instead of json becuase frontend is used
 
         # Checks for missing fields
         if not all(field in data for field in ['username', 'email', 'password']):
@@ -81,14 +81,6 @@ def register():
 
     except Exception as e:
         return jsonify({"error": "Internal Server Error"}), 500
-
-
-# view all the registered users in the database
-@app.route('/view_users')
-def view_users():
-    users = User.query.all()  # Fetch all users
-    user_list = [{"id": user.id, "username": user.username, "email": user.email} for user in users]
-    return jsonify(user_list)  # Return as JSON
 
 
 if __name__ == '__main__':

@@ -87,7 +87,7 @@ main {
         }
         .eye {
             position: absolute;
-            right: 20%;
+            right: 24%;
             top: 36%;
             height: 25px;
             width: 30px;
@@ -97,7 +97,7 @@ main {
         }
         .closeEye {
             position: absolute;
-            right: 20.3%;
+            right: 24.3%;
             top: 36.2%;
             height: 21px;
             width: 26px;
