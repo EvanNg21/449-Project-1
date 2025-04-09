@@ -15,4 +15,5 @@ class InventoryItem(db.Model):
     description = db.Column(db.String(150), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)
+    admin_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     

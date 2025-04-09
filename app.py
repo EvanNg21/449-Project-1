@@ -5,6 +5,7 @@ from models import db, User, InventoryItem
 import re
 from datetime import timedelta
 import time
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 
 # ------------------------------------------------------------
 # Configuration
@@ -16,8 +17,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'supersecretkey' # Flask session encryption key
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)  # session expiration time (30min)
+app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
+
 Session(app)
 db.init_app(app)
+jwt = JWTManager(app)
 
 with app.app_context():
     db.create_all()
@@ -92,16 +96,106 @@ def logout():
     session.pop('last_activity', None)  # Remove last activity timestamp
     return jsonify({"message": "User logged out successfully!"})
 
+#Admin Login (JWT-based)
+@app.route('/admin/login', methods=['POST'])
+def admin_login():
+    data = request.json
+    username = data.get("username")
+    password = data.get("password")
+    
+    user = User.query.filter_by(username=username).first()
+    if not user or not check_password_hash(user.password_hash, password):
+        return jsonify({"msg": "Bad credentials"}), 401
+    
+    if user.role != "admin":
+        return jsonify({"msg": "Not authorized. Admins only."}), 403
+
+    # Create and return a JWT token with admin details in the payload.
+    access_token = create_access_token(identity={'id': user.id, 'username': user.username, 'role': user.role})
+    return jsonify(access_token=access_token), 200
 
 # ------------------------------------------------------------
-# Admin-Specific Inventory Management
+# Admin-Specific Inventory Management (JWT-protected)
 # ------------------------------------------------------------
+@app.route('/admin/inventory', methods=['GET'])
+@jwt_required()
+def get_admin_inventory():
+    current_user = get_jwt_identity()  # Current user details from JWT payload
+    if current_user['role'] != 'admin':
+        return jsonify({"msg": "Admins only."}), 403
 
-# ------------------------------------------------------------
-# Placeholder: To be implemented!
-# ------------------------------------------------------------
+    admin_items = InventoryItem.query.filter_by(admin_id=current_user['id']).all()
+    items = []
+    for item in admin_items:
+        items.append({
+            "id": item.id,
+            "name": item.name,
+            "description": item.description,
+            "quantity": item.quantity,
+            "price": item.price
+        })
+    return jsonify(items), 200
 
+# Create a new inventory item associated with the admin
+@app.route('/admin/inventory', methods=['POST'])
+@jwt_required()
+def create_inventory_item():
+    current_user = get_jwt_identity()
+    if current_user['role'] != 'admin':
+        return jsonify({"msg": "Admins only."}), 403
 
+    data = request.json
+    new_item = InventoryItem(
+        name=data.get('name'),
+        description=data.get('description'),
+        quantity=data.get('quantity'),
+        price=data.get('price'),
+        admin_id=current_user['id']  # Link the new item to the admin
+    )
+    db.session.add(new_item)
+    db.session.commit()
+    
+    return jsonify({"msg": "Inventory item created", "item_id": new_item.id}), 201
+
+# Update an existing inventory item
+@app.route('/admin/inventory/<int:item_id>', methods=['PUT'])
+@jwt_required()
+def update_inventory_item(item_id):
+    current_user = get_jwt_identity()
+    if current_user['role'] != 'admin':
+        return jsonify({"msg": "Admins only."}), 403
+
+    # Ensure the item exists and belongs to the current admin.
+    item = InventoryItem.query.filter_by(id=item_id, admin_id=current_user['id']).first()
+    if not item:
+        return jsonify({"msg": "Item not found or not authorized"}), 404
+
+    data = request.json
+    item.name = data.get('name', item.name)
+    item.description = data.get('description', item.description)
+    item.quantity = data.get('quantity', item.quantity)
+    item.price = data.get('price', item.price)
+    db.session.commit()
+    
+    return jsonify({"msg": "Inventory item updated"}), 200
+
+# Delete an inventory item
+@app.route('/admin/inventory/<int:item_id>', methods=['DELETE'])
+@jwt_required()
+def delete_inventory_item(item_id):
+    current_user = get_jwt_identity()
+    if current_user['role'] != 'admin':
+        return jsonify({"msg": "Admins only."}), 403
+
+    # Check if the item exists and is owned by the logged-in admin.
+    item = InventoryItem.query.filter_by(id=item_id, admin_id=current_user['id']).first()
+    if not item:
+        return jsonify({"msg": "Item not found or not authorized"}), 404
+
+    db.session.delete(item)
+    db.session.commit()
+    
+    return jsonify({"msg": "Inventory item deleted"}), 200
 # ------------------------------------------------------------
 # Session and Cookie Security
 # ------------------------------------------------------------
@@ -122,7 +216,6 @@ def get_session():
             "username": session['username']
         })
     return jsonify({"message": "User is not logged in"}), 401
-
 
 # Protected Route (requires login)
 @app.route('/logged_in', methods=['GET'])
