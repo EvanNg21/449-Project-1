@@ -111,7 +111,7 @@ def show_logged_in_page():
 # CRUD Operations for Inventory
 # ------------------------------------------------------------
 
-@app.route('/inventory', methods=['GET'])
+@app.route('/inventory', methods=['GET']) #gets all inventory items
 def get_inventory():
     items = InventoryItem.query.all()
     inventory_list = [{
@@ -124,7 +124,7 @@ def get_inventory():
 
     return jsonify(inventory_list)
 
-@app.route('/inventory/<int:item_id>', methods=['GET'])
+@app.route('/inventory/<int:item_id>', methods=['GET']) #gets specific inventory item
 def get_inventory_item(item_id):
     try:
         item = InventoryItem.query.get(item_id)
@@ -140,7 +140,7 @@ def get_inventory_item(item_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/inventory/create', methods=['POST'])
+@app.route('/inventory/create', methods=['POST']) #creates new inventory item
 def create_inventory_item():
     data = request.json
 
@@ -159,7 +159,7 @@ def create_inventory_item():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/inventory/delete/<int:item_id>', methods=['DELETE'])
+@app.route('/inventory/delete/<int:item_id>', methods=['DELETE']) #deletes inventory item
 def delete_inventory_item(item_id):
     try:
         item = InventoryItem.query.get(item_id)
@@ -171,7 +171,7 @@ def delete_inventory_item(item_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/inventory/update/<int:item_id>', methods=['PUT'])
+@app.route('/inventory/update/<int:item_id>', methods=['PUT']) #updates inventory item
 def update_inventory_item(item_id):
     data = request.json
     try:
