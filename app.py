@@ -73,11 +73,15 @@ def login():
     data = request.json
     user = User.query.filter_by(username=data['username']).first()
 
-    if user and check_password_hash(user.password_hash, data['password']):
-        session['user_id'] = user.id
-        session['username'] = user.username
-        return jsonify({"message": "Login successful!"})
-    return jsonify({"error": "Invalid credentials"}), 401
+    if user:
+        if check_password_hash(user.password_hash, data['password']):
+            session['user_id'] = user.id
+            session['username'] = user.username
+            return jsonify({"message": "Login successful!"})
+        else:
+            return jsonify({"error": "Invalid password"}), 401
+    else:
+        return jsonify({"error": "Username is not registered. Please register first."}), 404
 
 
 # Logout
