@@ -250,11 +250,24 @@ def get_inventory(current_user):  # Current user details from JWT payload
 def create_inventory_item(current_user):
     
     data = request.json
+    name = data.get('name')
+    if name is not None and not isinstance(name, str):
+        return jsonify({"message": "Name must be a string"}), 400
+    description = data.get('description')
+    if description is not None and not isinstance(description, str):
+        return jsonify({"message": "Description must be a string"}), 400
+    quantity = data.get('quantity')
+    if quantity is not None and not isinstance(quantity, int):
+        return jsonify({"message": "Quantity must be an integer"}), 400
+    price = data.get('price')
+    if price is not None and not isinstance(price, float):
+        return jsonify({"message": "Price must be a float"}), 400
+    
     new_item = InventoryItem(
-        name=data.get('name'),
-        description=data.get('description'),
-        quantity=data.get('quantity'),
-        price=data.get('price'),
+        name = name,
+        description = description,
+        quantity = quantity,
+        price = price,
         user_id=current_user['id']  # Link the new item to the admin
     )
     db.session.add(new_item)
@@ -275,6 +288,19 @@ def update_inventory_item(current_user, item_id):
         return jsonify({"message": "Item not found or not authorized"}), 404
 
     data = request.json
+    name = data.get('name')
+    if name is not None and not isinstance(name, str):
+        return jsonify({"message": "Name must be a string"}), 400
+    description = data.get('description')
+    if description is not None and not isinstance(description, str):
+        return jsonify({"message": "Description must be a string"}), 400
+    quantity = data.get('quantity')
+    if quantity is not None and not isinstance(quantity, int):
+        return jsonify({"message": "Quantity must be an integer"}), 400
+    price = data.get('price')
+    if price is not None and not isinstance(price, float):
+        return jsonify({"message": "Price must be a float"}), 400
+    
     item.name = data.get('name', item.name)
     item.description = data.get('description', item.description)
     item.quantity = data.get('quantity', item.quantity)
