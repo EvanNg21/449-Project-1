@@ -30,6 +30,14 @@ with app.app_context():
 
 # ------------------------------------------------------------
 # User login and Admin login 
+#        admin login
+#       "username": "Admin123",
+#       "password": "Admin123123!"
+#   
+#        regular user
+#        "username": "User123",
+#        "password": "User123123!"
+#
 # ------------------------------------------------------------
 
 # User Registration
@@ -88,13 +96,26 @@ def register():
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
+    username = data['username']
     user = User.query.filter_by(username=data['username']).first()
 
     if user and check_password_hash(user.password_hash, data['password']):
+        token = jwt.encode(
+        {
+            'username': username,
+            'role': user.role,
+            'id': user.id, 
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+        },
+        app.config['JWT_SECRET_KEY'],
+        algorithm="HS256"
+    )
         session['user_id'] = user.id
         session['username'] = user.username
+        session['jwt_token'] = token
         session['last_activity'] = time.time()  # Store the last activity timestamp
         return jsonify({"message": "Login successful!"})
+    
     return jsonify({"error": "Invalid credentials"}), 401
 
 
@@ -156,6 +177,8 @@ def admin_logout():
 
     return response, 200
 
+
+
 # ------------------------------------------------------------
 # Admin-Specific Inventory Management (JWT-protected)
 # ------------------------------------------------------------
@@ -163,7 +186,7 @@ def admin_logout():
 def jwt_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        # Try to get token from headers first, then from session
+        
         token =  session.get('jwt_token')
         
         if not token:
@@ -180,38 +203,51 @@ def jwt_required(f):
         return f(current_user, *args, **kwargs)
     
     return decorated
-@app.route('/admin/inventory', methods=['GET'])
-@jwt_required
-def get_admin_inventory(current_user):  # Current user details from JWT payload
-    if current_user['role'] != 'admin':
-        return jsonify({"message": "Admins only."}), 403
 
-    admin_items = InventoryItem.query.filter_by(admin_id=current_user['id']).all()
+@app.route('/users', methods=['GET'])
+def get_users():
+   
+    users = User.query.all()
+    user_list = []
+    for user in users:
+        user_list.append({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role
+        })
+    
+    return jsonify(user_list), 200
+@app.route('/inventory', methods=['GET'])
+@jwt_required
+def get_inventory(current_user):  # Current user details from JWT payload
+    user_items = InventoryItem.query.filter_by(user_id=current_user['id']).all()
+    if current_user['role'] == 'admin':
+        user_items = InventoryItem.query.all()
     items = []
-    for item in admin_items:
+    for item in user_items:
         items.append({
             "id": item.id,
             "name": item.name,
             "description": item.description,
             "quantity": item.quantity,
-            "price": item.price
+            "price": item.price,
+            "user_id": item.user_id
         })
     return jsonify(items), 200
 
 # Create a new inventory item associated with the admin
-@app.route('/admin/inventory', methods=['POST'])
+@app.route('/inventory/create', methods=['POST'])
 @jwt_required
 def create_inventory_item(current_user):
-    if current_user['role'] != 'admin':
-        return jsonify({"message": "Admins only."}), 403
-
+    
     data = request.json
     new_item = InventoryItem(
         name=data.get('name'),
         description=data.get('description'),
         quantity=data.get('quantity'),
         price=data.get('price'),
-        admin_id=current_user['id']  # Link the new item to the admin
+        user_id=current_user['id']  # Link the new item to the admin
     )
     db.session.add(new_item)
     db.session.commit()
@@ -221,12 +257,12 @@ def create_inventory_item(current_user):
 # Update an existing inventory item
 @app.route('/admin/inventory/<int:item_id>', methods=['PUT'])
 @jwt_required
-def update_inventory_item(item_id, current_user):
+def update_inventory_item(current_user, item_id):
     if current_user['role'] != 'admin':
         return jsonify({"message": "Admins only."}), 403
 
     # Ensure the item exists and belongs to the current admin.
-    item = InventoryItem.query.filter_by(id=item_id, admin_id=current_user['id']).first()
+    item = InventoryItem.query.filter_by(id=item_id).first()
     if not item:
         return jsonify({"message": "Item not found or not authorized"}), 404
 
@@ -242,15 +278,16 @@ def update_inventory_item(item_id, current_user):
 # Delete an inventory item
 @app.route('/admin/inventory/<int:item_id>', methods=['DELETE'])
 @jwt_required
-def delete_inventory_item(item_id, current_user):
+def delete_inventory_item(current_user, item_id):
     if current_user['role'] != 'admin':
         return jsonify({"message": "Admins only."}), 403
 
-    # Check if the item exists and is owned by the logged-in admin.
-    item = InventoryItem.query.filter_by(id=item_id, admin_id=current_user['id']).first()
+    # Find the inventory item by ID
+    item = InventoryItem.query.filter_by(id=item_id).first()
     if not item:
-        return jsonify({"message": "Item not found or not authorized"}), 404
+        return jsonify({"message": "Item not found"}), 404
 
+    # Delete the item
     db.session.delete(item)
     db.session.commit()
     
