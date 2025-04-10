@@ -114,7 +114,9 @@ def login():
         session['username'] = user.username
         session['jwt_token'] = token
         session['last_activity'] = time.time()  # Store the last activity timestamp
-        return jsonify({"message": "Login successful!"})
+        response = jsonify({"message": "Login successful!"})
+        response.set_cookie('logged_in', 'true', httponly=True, max_age=1800)
+        return response
     
     return jsonify({"error": "Invalid credentials"}), 401
 
@@ -125,7 +127,10 @@ def logout():
     session.pop('user_id', None)
     session.pop('username', None)
     session.pop('last_activity', None)  # Remove last activity timestamp
-    return jsonify({"message": "User logged out successfully!"})
+    session.clear()
+    response = jsonify({"message": "User logged out successfully!"})
+    response.set_cookie('logged_in', '', expires=0)
+    return response
 
 #Admin Login (JWT-based)
 @app.route('/admin/login', methods=['POST'])
