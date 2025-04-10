@@ -45,9 +45,13 @@ with app.app_context():
 def register():
     data = request.json
 
-     # Checks for missing fields
+    # Checks for missing fields
     if not all(field in data for field in ['username', 'email', 'password']):
         return jsonify({"error": "Missing required fields"}), 400
+    
+    #checks if all fields are strings
+    if not all(isinstance(field, str) for field in ['username', 'email', 'password']):
+        return jsonify({"error": "All fields must be strings"}), 400
 
     # Validates email format
     email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
@@ -97,7 +101,11 @@ def register():
 def login():
     data = request.json
     username = data['username']
+    password = data['password']
     user = User.query.filter_by(username=data['username']).first()
+
+    if not all(isinstance(field, str) for field in [username, password]):
+        return jsonify({"error": "All fields must be strings"}), 400
 
     if user and check_password_hash(user.password_hash, data['password']):
         token = jwt.encode(
@@ -138,14 +146,11 @@ def admin_login():
     data = request.json
     username = data.get("username")
     password = data.get("password")
-    
     user = User.query.filter_by(username=username).first()
     if not user or not check_password_hash(user.password_hash, password):
         return jsonify({"message": "Bad credentials"}), 401
-    
     if user.role != "admin":
         return jsonify({"message": "Not authorized. Admins only."}), 403
-
     # Create JWT
     token = jwt.encode(
         {
@@ -157,7 +162,6 @@ def admin_login():
         app.config['JWT_SECRET_KEY'],
         algorithm="HS256"
     )
-
     # Store session data for admin
     session['user_id'] = user.id
     session['username'] = user.username
@@ -166,7 +170,6 @@ def admin_login():
     session['last_activity'] = time.time()
 
     response = jsonify({"access_token": token, "message": "Admin login successful!"})
-    
     # Set secure cookie for demonstration
     response.set_cookie('admin_logged_in', 'true', httponly=True, max_age=1800)  # 30 minutes
 
