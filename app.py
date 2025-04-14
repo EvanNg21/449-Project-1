@@ -43,7 +43,11 @@ with app.app_context():
 # User Registration
 @app.route('/register', methods=['POST'])
 def register():
-    data = request.json
+    data = request.get_json(silent=True)
+
+     # Checks if JSON body is empty
+    if not data:
+        return jsonify({"error": "Request body is empty. Please provide user details."}), 400
 
     # Checks for missing fields
     if not all(field in data for field in ['username', 'email', 'password']):
