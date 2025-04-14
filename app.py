@@ -14,18 +14,17 @@ from functools import wraps
 # ------------------------------------------------------------
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db' # connect to SQLite database, users,db
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # disable tracking of modifications, saves system resources
 app.config['SECRET_KEY'] = 'supersecretkey' # Flask session encryption key
-app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_TYPE'] = 'filesystem' # file system to store session data, doesnt use cookies alone and makes sessions more secure.
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)  # session expiration time (30min)
-app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
+app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key' # key for signing and verifying JWT tokens.
 
-Session(app)
-db.init_app(app)
+Session(app) # activates Flask-Session, session data will now be stored on the server filesystem
+db.init_app(app) # intializes SQLAlchemy, connects User and InventoryItem models
 
-
-with app.app_context():
+with app.app_context(): # creates all the tables in models.py if they don’t already exist
     db.create_all()
 
 # ------------------------------------------------------------
@@ -142,6 +141,7 @@ def logout():
     session.clear()
     response = jsonify({"message": "User logged out successfully!"})
     response.set_cookie('logged_in', '', expires=0)
+    response.set_cookie('admin_logged_in', '', expires=0)  # Clear cookie
     return response
 
 #Admin Login (JWT-based)
@@ -179,6 +179,7 @@ def admin_login():
 
     return response, 200
 
+""" 
 #Admin Logout
 @app.route('/admin/logout', methods=['POST'])
 def admin_logout():
@@ -188,7 +189,7 @@ def admin_logout():
     response.set_cookie('admin_logged_in', '', expires=0)  # Clear cookie
 
     return response, 200
-
+"""
 
 
 # ------------------------------------------------------------
